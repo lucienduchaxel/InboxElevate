@@ -18,4 +18,4 @@ export const POST = async (req: Request) => {
     });
     console.log('User created');
     return new Response('OK', {status: 200});
-}
+};
