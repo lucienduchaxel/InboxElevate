@@ -11,7 +11,7 @@ type Props = { isCollapsed: boolean }
 
 const Sidebar = ({isCollapsed}: Props) => {
     const [accountId] = useLocalStorage('accountId', '')
-    const [tab] = useLocalStorage<'inbox' | 'draft' | 'sent'>('inboxelevate-tab', 'inbox')
+    const [tab] = useLocalStorage<'inbox' | 'drafts' | 'sent'>('inboxelevate-tab', 'inbox')
 
         const { data: inboxThreads } = api.account.getNumThreads.useQuery({
             accountId,
@@ -19,7 +19,7 @@ const Sidebar = ({isCollapsed}: Props) => {
         })
         const { data: draftThreads } = api.account.getNumThreads.useQuery({
             accountId,
-            tab: 'draft'
+            tab: 'drafts'
         })
         const { data: sentThreads } = api.account.getNumThreads.useQuery({
             accountId,
@@ -42,7 +42,7 @@ const Sidebar = ({isCollapsed}: Props) => {
                 title: "Draft",
                 label: draftThreads?.toString() || "0", 
                 icon: File,
-                variant: tab === 'draft' ? 'default': 'ghost',
+                variant: tab === 'drafts' ? 'default': 'ghost',
             },
             {
                 title: "Sent",

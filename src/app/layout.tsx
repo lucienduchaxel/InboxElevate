@@ -8,6 +8,7 @@ import { TRPCReactProvider } from "@/trpc/react";
 import {
   ClerkProvider,
 } from '@clerk/nextjs'
+import Kbar from "@/components/kbar";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -27,13 +28,17 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${geist.variable}`}>
         <body>
-        <ThemeProvider
+          <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
           >
-          <TRPCReactProvider>{children}</TRPCReactProvider>
+            <TRPCReactProvider>
+              <Kbar>
+                {children}
+              </Kbar>
+            </TRPCReactProvider>
           </ThemeProvider>
         </body>
       </html>
