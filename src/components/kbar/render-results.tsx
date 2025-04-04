@@ -5,7 +5,7 @@ import React from 'react'
 import ResultItem from './result-item'
 
 const RenderResults = () => {
-    const { results, rootActionId } =useMatches()
+    const { results, rootActionId } = useMatches()
   return (
     <KBarResults
         items={results}

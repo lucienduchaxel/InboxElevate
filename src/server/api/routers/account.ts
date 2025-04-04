@@ -40,6 +40,18 @@ const draftFilter = (accountId: string): Prisma.ThreadWhereInput => ({
 });
 
 export const accountRouter = createTRPCRouter({
+  getAccounts: privateProcedure.query(async ({ ctx }) => {
+    return await ctx.db.account.findMany({
+      where: {
+        userId: ctx.auth.userId,
+      },
+      select: {
+        id: true,
+        emailAddress: true,
+        name: true,
+      },
+    });
+  }),
   getAccount: privateProcedure.query(async ({ ctx }) => {
     return await ctx.db.account.findMany({
       where: {
@@ -77,12 +89,19 @@ export const accountRouter = createTRPCRouter({
         where: filter,
       });
     }),
-    getThreads: privateProcedure.input(z.object({
-      accountId: z.string(),
-      tab: z.string(),
-      done: z.boolean()
-    })).query(async ({ctx,input}) => {
-      const account = await authorizedAccountAccess(input.accountId, ctx.auth.userId)
+  getThreads: privateProcedure
+    .input(
+      z.object({
+        accountId: z.string(),
+        tab: z.string(),
+        done: z.boolean(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const account = await authorizedAccountAccess(
+        input.accountId,
+        ctx.auth.userId,
+      );
 
       let filter: Prisma.ThreadWhereInput = {};
       if (input.tab === "inbox") {
@@ -94,15 +113,15 @@ export const accountRouter = createTRPCRouter({
       }
 
       filter.done = {
-        equals: input.done
-      }
+        equals: input.done,
+      };
 
       return await ctx.db.thread.findMany({
         where: filter,
         include: {
           emails: {
             orderBy: {
-              sentAt: 'asc'
+              sentAt: "asc",
             },
             select: {
               from: true,
@@ -112,15 +131,14 @@ export const accountRouter = createTRPCRouter({
               subject: true,
               sysLabels: true,
               id: true,
-              sentAt: true
-            }
-          }, 
-        }, 
-          take: 15,
-          orderBy: {
-            lastMessageDate: 'desc'
-          }
-      })
-
-    })
+              sentAt: true,
+            },
+          },
+        },
+        take: 15,
+        orderBy: {
+          lastMessageDate: "desc",
+        },
+      });
+    }),
 });
