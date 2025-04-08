@@ -3,10 +3,26 @@
 import { auth } from "@clerk/nextjs/server"
 import axios from "axios"
 import { headers } from "next/headers"
+import { getSubscriptionStatus } from "./stripe-actions"
+import { db } from "@/server/db"
+import { FREE_ACCOUNT_PER_USER, PRO_ACCOUNT_PER_USER } from "@/constants"
 
 export const getAurinkoAuthUrl = async (serviceType: 'Google' | 'Office365') => {
     const {userId} = await auth()
     if(!userId) throw new Error("Unauthorized")
+
+      const isSubscribed = await getSubscriptionStatus()
+      const accounts = await db.account.count({where: {userId: userId}})
+
+      if(isSubscribed){
+        if(accounts >= PRO_ACCOUNT_PER_USER) {
+          throw new Error('Maximum number of accounts reached')
+        }
+      } else {
+        if(accounts >= FREE_ACCOUNT_PER_USER) {
+          throw new Error('Maximum number of accounts reached')
+        }
+      }
     
         const params = new URLSearchParams({
             clientId: process.env.AURINKO_CLIENT_ID as string,

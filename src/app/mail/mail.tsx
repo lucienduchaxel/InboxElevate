@@ -11,6 +11,8 @@ import Sidebar from './sidebar'
 import ThreadList from './thread-list'
 import ThreadDisplay from './thread-display'
 import { useLocalStorage } from 'usehooks-ts'
+import SearchBar from './search-bar'
+import AskAi from './ask-ai'
 
 type Props = {
     defaultLayout: number[] | undefined
@@ -51,6 +53,7 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapedSize, defaultCollapsed 
                         <Separator />
                         <Sidebar isCollapsed={isCollapsed} />
                         <div className='flex-1'></div>
+                        <AskAi  isCollapsed={false}/>
                     </div>
                 </ResizablePanel>
                 <ResizableHandle withHandle />
@@ -76,7 +79,7 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapedSize, defaultCollapsed 
 
                         <Separator />
                         {/* Search Bar */}
-                        Search Bar
+                        <SearchBar />
                         <TabsContent value='inbox' className="m-0">
                             <ThreadList />
                         </TabsContent>

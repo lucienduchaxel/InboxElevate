@@ -11,22 +11,39 @@ datasource db {
 }
 
 model User {
-    id           String  @id @default(cuid())
-    emailAddress String  @unique
+    id           String    @id @default(cuid())
+    emailAddress String    @unique
     firstName    String?
     lastName     String?
     imageUrl     String?
-    accounts Account[]
+    accounts     Account[]
+    stripeSubscription StripeSubscription?
+    chatbotInteraction ChatbotInteraction?
+}
+
+model StripeSubscription {
+    id       String   @id @default(cuid())
+    createAt DateTime @default(now())
+    userId   String @unique
+    user     User     @relation(fields: [userId], references: [id])
+
+    customerId       String
+    subscriptionId   String @unique
+    priceId           String
+
+    currentPeriodEnd DateTime
+    updatedAt DateTime @updatedAt
 }
 
 model Account {
     id     String @id @default(cuid())
     userId String
 
-    accessToken        String @unique
+    accessToken  String @unique
     emailAddress String
     name         String
 
+    oramaIndex     Json?
     nextDeltaToken String?
 
     user           User           @relation(fields: [userId], references: [id])
@@ -147,4 +164,17 @@ enum MeetingMessageMethod {
     cancel
     counter
     other
+}
+
+model ChatbotInteraction {
+    id String @id @default(cuid())
+
+    day   String
+    count Int    @default(1)
+
+    userId String? @unique
+    user   User?   @relation(fields: [userId], references: [id])
+
+    @@unique([day, userId])
+    @@index([day, userId])
 }
