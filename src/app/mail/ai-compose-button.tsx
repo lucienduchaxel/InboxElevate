@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import {
     Dialog,
@@ -10,10 +12,12 @@ import {
 import { Button } from '@/components/ui/button'
 import { Bot } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
-import { generateEmail } from './action'
+import { generateEmail, indentChatCount } from './action'
 import { readStreamableValue } from "ai/rsc"
 import useThreads from '@/hooks/user-threads'
 import { turndown } from '@/lib/turndown'
+import { api } from '@/trpc/react'
+import { toast } from 'sonner'
 
 
 type Props = {
@@ -26,6 +30,8 @@ const AIComposeButton = (props: Props) => {
     const [prompt, setPrompt] = React.useState('')
     const { threads, threadId, account } = useThreads()
     const thread = threads?.find(t => t.id === threadId)
+    const utils = api.useUtils()
+
 
     const aiGenerate = async () => {
         let context = ''
@@ -39,7 +45,7 @@ const AIComposeButton = (props: Props) => {
                     Bodu: ${turndown.turndown(email.body ?? email.bodySnippet ?? "")}
                  `
 
-                 context += content
+                context += content
             }
         }
 
@@ -47,11 +53,17 @@ const AIComposeButton = (props: Props) => {
             My name is ${account?.name} and my email is ${account?.emailAddress}
         `
 
-        const { output } = await generateEmail(context, prompt)
-        for await (const token of readStreamableValue(output)) {
-            console.log(token)
-            props.onGenerate(token)
+        try {
+            await indentChatCount()
+            await utils.account.getChatbotInteraction.refetch()
+            const { output } = await generateEmail(context, prompt)
+            for await (const token of readStreamableValue(output)) {
+                props.onGenerate(token)
+            }
+        } catch (error: any) {
+            toast.error(error.message)
         }
+       
     }
 
     return (

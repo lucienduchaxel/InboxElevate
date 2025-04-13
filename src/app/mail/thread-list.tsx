@@ -21,7 +21,7 @@ const ThreadList = () => {
     }, {} as Record<string, typeof threads>)
 
     return (
-        <div className='max-w-full overflow-y-scroll no-scrollbar max-h-[calc(100vh-120px)]'>
+        <div className='max-w-full overflow-y-scroll no-scrollbar max-h-[calc(100vh-150px)]'>
             <div className='flex flex-col gap-2 p-4 pt-0'>
                 {Object.entries(groupedThreads ?? {}).map(([date, threads]) => {
                     return (

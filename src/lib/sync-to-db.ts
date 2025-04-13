@@ -8,7 +8,6 @@ import { turndown } from "./turndown";
 import { getEmbeddings } from "./embedding";
 
 export async function syncEmailsToDatabase(emails: EmailMessage[], accountId: string){
-    console.log('syncing emails to database', emails.length)
     const limit = pLimit(10)
 
     const orama = new OramaClient(accountId)

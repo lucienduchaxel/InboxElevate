@@ -3,6 +3,10 @@
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { createStreamableValue } from "ai/rsc";
+import { auth } from "@clerk/nextjs/server";
+import { db } from "@/server/db";
+import { getSubscriptionStatus } from "@/lib/stripe-actions";
+import { FREE_CREDITS_PER_DAY } from "@/constants";
 
 export async function generateEmail(context: string, prompt: string) {
   const stream = createStreamableValue();
@@ -24,6 +28,7 @@ export async function generateEmail(context: string, prompt: string) {
     }
 
     stream.done();
+
   })();
 
   return { output: stream.value };
@@ -31,8 +36,9 @@ export async function generateEmail(context: string, prompt: string) {
 
 export async function generate(input: string) {
   const stream = createStreamableValue();
+
   (async () => {
-    console.log(input)
+    console.log(input);
     const { textStream } = await streamText({
       model: openai("gpt-4-turbo"),
       prompt: `
@@ -59,7 +65,49 @@ export async function generate(input: string) {
     }
 
     stream.done();
+
   })();
 
   return { output: stream.value };
+}
+
+export async function indentChatCount() {
+  const { userId } = await auth();
+  const today = new Date().toDateString();
+  const isSubscribed = await getSubscriptionStatus();
+
+  if (!userId) {
+    return new Error("Unauthorized");
+  }
+
+  if (!isSubscribed) {
+    const chatbotInteraction = await db.chatbotInteraction.findUnique({
+      where: {
+        day: today,
+        userId,
+      },
+    });
+    if (!chatbotInteraction) {
+      await db.chatbotInteraction.create({
+        data: {
+          day: today,
+          userId,
+          count: 1,
+        },
+      });
+    } else if (chatbotInteraction.count >= FREE_CREDITS_PER_DAY) {
+      throw new Error("You have reached the free limit for today");
+    }
+  }
+  await db.chatbotInteraction.update({
+    where: {
+      day: today,
+      userId,
+    },
+    data: {
+      count: {
+        increment: 1,
+      },
+    },
+  });
 }

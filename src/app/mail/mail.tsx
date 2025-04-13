@@ -65,7 +65,7 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapedSize, defaultCollapsed 
                             setDone(false)
                         }
                     }}>
-                        <div className='flex items-center px-4 py-2'>
+                        <div className='flex items-center px-4 py-1'>
                             <h1 className='text-xl font-bold'>Inbox</h1>
                             <TabsList className='ml-auto'>
                                 <TabsTrigger value='inbox' className='text-zinc-600 dark:text-zinc-200'>

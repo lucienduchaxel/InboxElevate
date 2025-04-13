@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input';
 import AIComposeButton from './ai-compose-button';
 import { generate } from './action';
 import { readStreamableValue } from 'ai/rsc';
+import { toast } from 'sonner';
+import { api } from '@/trpc/react';
 
 type Props = {
     subject: string,
@@ -33,21 +35,14 @@ const EmailEditor = ({ subject, setSubject, toValues, setToValues, ccValues, set
     const [value, setValue] = React.useState<string>('')
     const [expanded, setExpanded] = React.useState(defaultToolbarExpanded)
     const [token, setToken] = React.useState<string>('')
-
     const aiGenerate = async () => {
-        const { output } = await generate(value)
-        for await (const token of readStreamableValue(output)) {
-            if (token) {
-                setToken(token)
+            const { output } = await generate(value)
+            for await (const token of readStreamableValue(output)) {
+                if (token) {
+                    setToken(token)
+                }
             }
-        }
     }
-
-
-    
-
-
-
     const CustomText = Text.extend({
         addKeyboardShortcuts() {      
             return {
@@ -80,7 +75,7 @@ const EmailEditor = ({ subject, setSubject, toValues, setToValues, ccValues, set
     if (!editor) return null
 
     return (
-        <div>
+        <div className="flex flex-col h-full">
             <div className='flex p-4 py-2 border-b'>
                 <EditorMenuBar editor={editor} />
             </div>
@@ -118,7 +113,7 @@ const EmailEditor = ({ subject, setSubject, toValues, setToValues, ccValues, set
             </div>
 
             <div className='p-4 prose w-full '>
-                <EditorContent editor={editor} value={value} />
+                <EditorContent editor={editor} value={value} placeholder="Write your email here..." />
             </div>
 
             <Separator />

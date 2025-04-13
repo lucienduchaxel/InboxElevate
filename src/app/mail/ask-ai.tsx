@@ -26,7 +26,6 @@ const AskAi = ({ isCollapsed }: { isCollapsed: boolean }) => {
         },
         initialMessages: []
     })
-    //const messages: any[] = []
     if (isCollapsed) return null
     return (
         <div className='p-4 mb-14'>
